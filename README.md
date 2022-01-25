@@ -429,6 +429,8 @@ int main()
 
 ### std::set - это контейнер, который автоматически сортирует добавляемые элементы в порядке возрастания. Но при добавлении одинаковых значений, set будет хранить только один его экземпляр. По другому его еще называют множеством. "Плюсы" set: быстрая сортировка, "Минусы" set: нельзя обратиться к конкретной ячейке по индексу. В таких случаях лучше std::vector
 ![image](https://user-images.githubusercontent.com/74144153/150984948-4ee96ae2-1166-420b-ab6b-681814c9005d.png)
+![image](https://user-images.githubusercontent.com/74144153/150986747-1dc62e30-f046-4526-a404-8a336bd5023e.png)
+std::set - множество. Элементы уникальны, а так же сравниваются и сортируются при добавлении. Чаще всего реализовано так же как и std::map с помощью красно-черных деревьев.
 
 | Метод | Функция |
 | --- | --- |
@@ -456,7 +458,134 @@ int main()
 1. Поиск - O(log(n))
 2. Вставка - O(log(n))
 3. Удаление - O(log(n))
-4. 
+4. Добавление элемента - O(log(n))
+
+### Пример работы
+```cpp
+#include <iostream>
+#include <set>
+
+int main ()
+{
+  std::set<int> myset;
+  myset.insert(20);
+  myset.insert(30);
+  myset.insert(10);
+  std::cout << "myset contains:";
+  while (!myset.empty())
+  {
+     std::cout << ' ' << *myset.begin();
+     myset.erase(myset.begin());
+  }
+  std::cout << '\n';
+  
+  for (int i=0; i<10; ++i) myints.insert(i);
+  std::cout << "1. size: " << myints.size() << '\n';
+  
+  int i;
+  std::set<int> myset;
+  if (myset.max_size()>1000)
+  {
+    for (i=0; i<1000; i++) myset.insert(i);
+    std::cout << "The set contains 1000 elements.\n";
+  }
+  else std::cout << "The set could not hold 1000 elements.\n";
+  
+  myset.clear();
+  
+  std::set<std::string> myset;
+  myset.emplace("foo");
+  myset.emplace("bar");
+  auto ret = myset.emplace("foo");
+  if (!ret.second) std::cout << "foo already exists in myset\n";
+  
+  std::set<std::string> myset;
+  auto it = myset.cbegin();
+  myset.emplace_hint (it,"alpha");
+  it = myset.emplace_hint (myset.cend(),"omega");
+  it = myset.emplace_hint (it,"epsilon");
+  it = myset.emplace_hint (it,"beta");
+  std::cout << "myset contains:";
+  for (const std::string& x: myset)
+    std::cout << ' ' << x;
+  std::cout << '\n';
+  
+  std::set<int> myset;
+  std::set<int>::iterator it;
+  // insert some values:
+  for (int i=1; i<10; i++) myset.insert(i*10);  // 10 20 30 40 50 60 70 80 90
+  it = myset.begin();
+  ++it;                                         // "it" points now to 20
+  myset.erase (it);
+  myset.erase (40);
+  it = myset.find (60);
+  myset.erase (it, myset.end());
+  std::cout << "myset contains:";
+  for (it=myset.begin(); it!=myset.end(); ++it)
+    std::cout << ' ' << *it;
+  std::cout << '\n';
+  
+  int myints[]={12,75,10,32,20,25};
+  std::set<int> first (myints,myints+3);     // 10,12,75
+  std::set<int> second (myints+3,myints+6);  // 20,25,32
+  first.swap(second);
+  
+  std::set<int> myset;
+  // set some initial values:
+  for (int i=1; i<5; ++i) myset.insert(i*3);    // set: 3 6 9 12
+  for (int i=0; i<10; ++i)
+  {
+    std::cout << i;
+    if (myset.count(i)!=0)
+      std::cout << " is an element of myset.\n";
+    else
+      std::cout << " is not an element of myset.\n";
+  }
+  
+  std::set<int> myset;
+  for (int i=1; i<=5; i++) myset.insert(i*10);   // myset: 10 20 30 40 50
+  std::pair<std::set<int>::const_iterator,std::set<int>::const_iterator> ret;
+  ret = myset.equal_range(30);
+  std::cout << "the lower bound points to: " << *ret.first << '\n';
+  std::cout << "the upper bound points to: " << *ret.second << '\n';
+
+  std::set<int> myset;
+  std::set<int>::iterator itlow,itup;
+  for (int i=1; i<10; i++) myset.insert(i*10); // 10 20 30 40 50 60 70 80 90
+  itlow=myset.lower_bound (30);                //       
+  itup=myset.upper_bound (60);                 //                   
+  myset.erase(itlow,itup);                     // 10 20 70 80 90
+  
+  std::set<int> myset;
+  int highest;
+  std::set<int>::key_compare mycomp = myset.key_comp();
+  for (int i=0; i<=5; i++) myset.insert(i);
+  std::cout << "myset contains:";
+  highest=*myset.rbegin();
+  std::set<int>::iterator it=myset.begin();
+  do {
+    std::cout << ' ' << *it;
+  } while ( mycomp(*(++it),highest) );
+  std::cout << '\n';
+  
+  std::set<int> myset;
+  std::set<int>::value_compare mycomp = myset.value_comp();
+  for (int i=0; i<=5; i++) myset.insert(i);
+  std::cout << "myset contains:";
+  int highest=*myset.rbegin();
+  std::set<int>::iterator it=myset.begin();
+  do {
+    std::cout << ' ' << *it;
+  } while ( mycomp(*(++it),highest) );
+  std::cout << '\n';
+  
+  set<[тип], greater[тип]> [name];
+  set<long long> greater <long long> st;
+  
+  copy([начало],[конец], ostream_iterator<[тип]>(cout,[отступ]));
+}
+```
+
 ## 4. Класс std::unordered_map. Внутренняя реализация unordered_map, его основные методы. Сложность поиска, сортировки, удаления элемента, добавления элемента. Пример работы с std::unordered_map
 
 
