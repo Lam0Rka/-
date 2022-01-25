@@ -590,17 +590,233 @@ int main ()
 
 ## 5. Класс std::vector. Внутренняя реализация vector, его основные методы. Сложность поиска, сортировки, удаления элемента, добавления элемента. Пример работы с std::vector. Особенность std::vector<bool>.
     
-### Класс std::vector
+### Класс std::vector. Внутренняя реализация vector.
 
+std::vector - у каждого элемента есть свои индекс, индексы в векторе по умолчанию начинается с 0. В векторе может хранится только один тип данных int/char/string/bool и так далее. Классе вектор состоит из *data, size, max_size, где *data - это данные, size - размер количества элементов в векторе, max_size размер вектора на данный момент.
+    
+### Основные методы
+    
+| Метод | Функция |
+| --- | --- |
+| at | Предоставляет доступ к указанному элементу с проверкой индекса |
+| operator[] | Предоставляет доступ к указанному элементу |
+| front | Предоставляет доступ к первому элементу |
+| back | предоставляет доступ к последнему элементу |
+| data  (C++11) | Предоставляет прямой доступ к внутреннему содержимому |
+| empty | Проверяет отсутствие элементов в контейнере |
+| size | Возвращает количество элементов в контейнере |
+| max_size | Возвращает максимально допустимое количество элементов в контейнере |
+| reserve | Зарезервировать память. |
+| capacity | Возвращает количество элементов, которые могут одновременно храниться в выделенной области памяти |
+| shrink_to_fit  (C++11) | Уменьшает использование памяти, высвобождая неиспользуемую |
+| clear | Очищает контейнер |
+| insert | Вставляет элементы |
+| emplace  (C++11) | Конструирует элементы "на месте" и вставляет их начиная с заданной позиции pos |
+| erase | Удаляет элементы |
+| push_back | добавляет элемент в конец |
+| emplace_back  (C++11) | Конструирует элементы "на месте" в конце контейнера |
+| pop_back | Удаляет последний элемент |
+| resize | Изменяет количество хранимых элементов |
+| swap | Обменивает содержимое |    
+    
 ### Сложности основных алгоритмов
 
 1. Поиск: O(N)
-2. Удаление: O(M+K), где M - количество удалённых, K - количество сдвинутых из-за удаления , 
-3. Добавление в середину: O(N), Добавление в конец: О(1) амортизированное, 
-4. Сортировка: O(N * log(N)) - если использовать std::sort, Получение i-того элемента: О(1) Амортизированная сложность = иногда
-оно будет требовать больше (в нашем случае О(n)), но такие случаи редки достаточно, чтобы считать амортизированное значение верным.
+2. Удаление: O(M+K), где M - количество удалённых, K - количество сдвинутых из-за удаления 
+3. Добавление в середину: O(N), Добавление в конец: О(1) амортизированное 
+4. Сортировка: O(N * log(N)) - если использовать std::sort
+    
+### Пример работы
+```cpp
+#include <iostream>
+#include <vector>
 
+int main ()
+{
+  std::vector<int> myvector (10);   // 10 zero-initialized ints
+  // assign some values:
+  for (unsigned i=0; i<myvector.size(); i++)
+    myvector.at(i)=i;
+  std::cout << "myvector contains:";
+  for (unsigned i=0; i<myvector.size(); i++)
+    std::cout << ' ' << myvector.at(i);
+  std::cout << '\n';
 
+  std::vector<int> myvector (10);   // 10 zero-initialized elements
+  std::vector<int>::size_type sz = myvector.size();
+  // assign some values:
+  for (unsigned i=0; i<sz; i++) myvector[i]=i;
+   
+  //front - доступ к ппервому элементу
+  std::vector<int> myvector;
+  myvector.push_back(78);
+  myvector.push_back(16);
+  // now front equals 78, and back 16
+  myvector.front() -= myvector.back();
+  std::cout << "myvector.front() is now " << myvector.front() << '\n';
+  
+  //back - доступ к послледнему элементу (всё аналогично)
+  
+  std::vector<int> myvector (5);
+  int* p = myvector.data();
+  *p = 10;
+  ++p;
+  *p = 20;
+  p[2] = 100;
+  std::cout << "myvector contains:";
+  for (unsigned i=0; i<myvector.size(); ++i)
+    std::cout << ' ' << myvector[i];
+  std::cout << '\n';
+               
+  std::vector<int> myvector;
+  int sum (0);
+  for (int i=1;i<=10;i++) myvector.push_back(i);
+  while (!myvector.empty())
+  {
+     sum += myvector.back();
+     myvector.pop_back();
+  }
+  std::cout << "total: " << sum << '\n';
+  
+  std::vector<int> myints;
+  std::cout << "0. size: " << myints.size() << '\n';
+  for (int i=0; i<10; i++) myints.push_back(i);
+  std::cout << "1. size: " << myints.size() << '\n';
+                                               
+  std::vector<int> myvector;
+  // set some content in the vector:
+  for (int i=0; i<100; i++) myvector.push_back(i);
+  std::cout << "size: " << myvector.size() << "\n";
+                                              
+  std::vector<int> myvector;
+  // set some content in the vector:
+  for (int i=0; i<100; i++) myvector.push_back(i);
+  std::cout << "size: " << myvector.size() << "\n";
+}
+  
+  std::vector<int>::size_type sz;
+  std::vector<int> foo;
+  sz = foo.capacity();
+  std::cout << "making foo grow:\n";
+  for (int i=0; i<100; ++i) {
+    foo.push_back(i);
+    if (sz!=foo.capacity()) {
+      sz = foo.capacity();
+      std::cout << "capacity changed: " << sz << '\n';
+    }
+  }
+  std::vector<int> bar;
+  sz = bar.capacity();
+  bar.reserve(100);   // this is the only difference with foo above
+  std::cout << "making bar grow:\n";
+  for (int i=0; i<100; ++i) {
+    bar.push_back(i);
+    if (sz!=bar.capacity()) {
+      sz = bar.capacity();
+      std::cout << "capacity changed: " << sz << '\n';
+    }
+  } 
+    
+  std::vector<int> myvector;
+  // set some content in the vector:
+  for (int i=0; i<100; i++) myvector.push_back(i);
+  std::cout << "size: " << (int) myvector.size() << '\n';
+  std::cout << "capacity: " << (int) myvector.capacity() << '\n';
+  std::cout << "max_size: " << (int) myvector.max_size() << '\n';                                               
+                                                 
+  std::vector<int> myvector (100);
+  std::cout << "1. capacity of myvector: " << myvector.capacity() << '\n';
+  myvector.resize(10);
+  std::cout << "2. capacity of myvector: " << myvector.capacity() << '\n';
+  myvector.shrink_to_fit();
+  std::cout << "3. capacity of myvector: " << myvector.capacity() << '\n';
+    
+  myvector.clear();  
+  
+  std::vector<int> myvector (3,100);
+  std::vector<int>::iterator it;
+  it = myvector.begin();
+  it = myvector.insert ( it , 200 );
+  myvector.insert (it,2,300);
+  // "it" no longer valid, get a new one:
+  it = myvector.begin();
+  std::vector<int> anothervector (2,400);
+  myvector.insert (it+2,anothervector.begin(),anothervector.end());
+  int myarray [] = { 501,502,503 };
+  myvector.insert (myvector.begin(), myarray, myarray+3);
+  std::cout << "myvector contains:";
+  for (it=myvector.begin(); it<myvector.end(); it++)
+    std::cout << ' ' << *it;
+  std::cout << '\n'; 
+               
+  std::vector<int> myvector = {10,20,30};
+  auto it = myvector.emplace ( myvector.begin()+1, 100 );
+  myvector.emplace ( it, 200 );
+  myvector.emplace ( myvector.end(), 300 );
+  std::cout << "myvector contains:";
+  for (auto& x: myvector)
+    std::cout << ' ' << x;
+  std::cout << '\n';  
+    
+  std::vector<int> myvector;
+  // set some values (from 1 to 10)
+  for (int i=1; i<=10; i++) myvector.push_back(i);
+  // erase the 6th element
+  myvector.erase (myvector.begin()+5);
+  // erase the first 3 elements:
+  myvector.erase (myvector.begin(),myvector.begin()+3);
+  std::cout << "myvector contains:";
+  for (unsigned i=0; i<myvector.size(); ++i)
+    std::cout << ' ' << myvector[i];
+  std::cout << '\n';  
+   
+  //emplace_back  
+  std::vector<int> myvector;
+  int myint;
+  std::cout << "Please enter some integers (enter 0 to end):\n";
+  do {
+    std::cin >> myint;
+    myvector.push_back (myint);
+  } while (myint);
+  std::cout << "myvector stores " << int(myvector.size()) << " numbers.\n"; 
+    
+  std::vector<int> myvector;
+  int sum (0);
+  myvector.push_back (100);
+  myvector.push_back (200);
+  myvector.push_back (300);
+  while (!myvector.empty())
+  {
+    sum+=myvector.back();
+    myvector.pop_back();
+  }
+  std::cout << "The elements of myvector add up to " << sum << '\n';
+    
+  std::vector<int> myvector;
+  // set some initial content:
+  for (int i=1;i<10;i++) myvector.push_back(i);
+  myvector.resize(5);
+  myvector.resize(8,100);
+  myvector.resize(12);
+  std::cout << "myvector contains:";
+  for (int i=0;i<myvector.size();i++)
+    std::cout << ' ' << myvector[i];
+  std::cout << '\n';
+
+  std::vector<int> foo (3,100);   // three ints with a value of 100
+  std::vector<int> bar (5,200);   // five ints with a value of 200
+  foo.swap(bar); 
+```
+    
+    
+### Особенность std::vector<bool>
+
+Способ, которым std::vector< bool > сделан компактным, определяется реализацией. Одной из потенциальных оптимизаций является сливание векторных элементов таким образом, что каждый элемент занимает один бит, а не байт, как обычный элемент типа bool.
+
+std::vector< bool > ведет себя аналогично std::vector, но для того, чтобы быть компактным, он:
+- Не обязательно хранит свои данные в одном непрерывном куске памяти.
+- Предоставляет std::vector<bool>::reference как метод доступа к отдельным битам.
+- Не использует std::allocator_traits::construct чтобы построить битовые значения.
 
 
 
