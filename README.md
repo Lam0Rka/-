@@ -1046,8 +1046,8 @@ enum color {
     
 if constexpr вычисляется во время компиляции, а if - нет. Это означает, что ветви могут быть отклонены во время компиляции и, следовательно, никогда не будут скомпилированы.
     
-    ```cpp
-    template <typename T>
+```С++
+template <typename T>
 void mixStaticWithDynamicIncorrect(T val)
 {
     if constexpr(std::is_integral<T>::value)
@@ -1060,7 +1060,7 @@ void mixStaticWithDynamicIncorrect(T val)
         std::cout << "Unknown type variable passed.";
     std::cout << "\n";
 }
-    ```
+```
 
 
 
